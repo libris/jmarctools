@@ -48,5 +48,12 @@
           </plugin>
         </plugins>
       </reporting>
+    <scm>
+        <connection>scm:svn:http://dev.libris.kb.se/svn/marc/trunk</connection>
+        <developerConnection>scm:svn:http://dev.libris.kb.se/svn/marc/trunk</developerConnection>
+        <tag>HEAD</tag>
+        <url>http://dev.libris.kb.se/svn/marc</url>
+    </scm>
+
 </project>
 
