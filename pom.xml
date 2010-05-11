@@ -1,95 +1,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+      <groupId>se.kb.libris</groupId>
+      <artifactId>super-pom</artifactId>
+      <version>1.0</version>
+  </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>se.kb.libris</groupId>
   <artifactId>marc</artifactId>
   <packaging>jar</packaging>
-  <version>1.1</version>
+  <version>1.1.1</version>
   <name>LIBRIS MARC Tools</name>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.0.2</version>
-                <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>2.2</version>
-                <configuration>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-    <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
-    <reporting>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>findbugs-maven-plugin</artifactId>
-            <version>2.0.1</version>
-          </plugin>
-        </plugins>
-      </reporting>
-    <scm>
-        <connection>scm:svn:http://dev.libris.kb.se/svn/marc/trunk</connection>
-        <developerConnection>scm:svn:http://dev.libris.kb.se/svn/marc/trunk</developerConnection>
-        <tag>HEAD</tag>
-        <url>http://dev.libris.kb.se/svn/marc</url>
-    </scm>
-    <distributionManagement>
-        <repository>
-            <id>archiva.internal</id>
-            <name>Archiva Managed Internal Repository</name>
-            <url>http://dev.libris.kb.se/archiva/repository/internal/</url>
-        </repository>
-        <snapshotRepository>
-            <id>archiva.snapshots</id>
-            <name>Archiva Managed Snapshot Repository</name>
-            <url>http://dev.libris.kb.se/archiva/repository/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
-    <repositories>
-        <repository>
-            <id>archiva.internal</id>
-            <name>Archiva Managed Internal Repository</name>
-            <url>http://dev.libris.kb.se/archiva/repository/internal/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>archiva.snapshots</id>
-            <name>Archiva Managed Snapshot Repository</name>
-            <url>http://dev.libris.kb.se/archiva/repository/snapshots/</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
+  <scm>
+    <connection>scm:svn:http://dev.libris.kb.se/svn/marc/trunk</connection>
+    <developerConnection>scm:svn:http://dev.libris.kb.se/svn/marc/trunk</developerConnection>
+    <tag>HEAD</tag>
+    <url>http://dev.libris.kb.se/svn/marc</url>
+  </scm>
 </project>
 
