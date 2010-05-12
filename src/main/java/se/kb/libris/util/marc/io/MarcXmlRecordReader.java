@@ -2,7 +2,13 @@ package se.kb.libris.util.marc.io;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.xml.parsers.*;
+import org.omg.IOP.CodecFactoryPackage.UnknownEncoding;
+import org.xml.sax.SAXException;
 import se.kb.libris.util.marc.*;
 
 public class MarcXmlRecordReader implements MarcRecordReader {
@@ -36,7 +42,29 @@ public class MarcXmlRecordReader implements MarcRecordReader {
         namespace = _namespace;
         init();
     }
-    
+
+    public static MarcRecord fromXml(String str) throws IOException {
+        MarcRecord mr = null;
+
+        try {
+            byte bytes[] = str.getBytes("UTF-8");
+            ByteArrayInputStream bin = new ByteArrayInputStream(bytes);
+            MarcXmlRecordReader reader = new MarcXmlRecordReader(bin);
+            mr = reader.readRecord();
+            reader.close();
+
+            return mr;
+        } catch (ParserConfigurationException ex) {
+            Logger.getLogger(MarcXmlRecordReader.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SAXException ex) {
+            Logger.getLogger(MarcXmlRecordReader.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(MarcXmlRecordReader.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return mr;
+    }
+
     public void init() {
         records = new LinkedList();
         final MarcXmlRecordReader reader = this;
