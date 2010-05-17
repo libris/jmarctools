@@ -87,39 +87,47 @@ public class DatafieldImpl extends FieldImpl implements Datafield {
         }
     }    
 
+    @Override
     public void addSubfield(Subfield f) { 
         subfields.add(f);
     }
     
+    @Override
     public Datafield addSubfield(char code, String data) {
         subfields.add(new SubfieldImpl(code, data));
         
         return this;
     }
     
+    @Override
     public char getIndicator(int idx) {
         return indicators[idx];
     }
 
+    @Override
     public Datafield setIndicator(int idx, char c) {
         indicators[idx] = c;
         
         return this;
     }
     
-    public List getSubfields() {
+    @Override
+    public List<SubfieldImpl> getSubfields() {
         return subfields;
     }
 
-    public Iterator iterator() {
+    @Override
+    public Iterator<SubfieldImpl> iterator() {
         return subfields.iterator();
     }
 
-    public ListIterator listIterator() {
+    @Override
+    public ListIterator<SubfieldImpl> listIterator() {
         return subfields.listIterator();
     }
     
-    public List getSubfields(String regexp) {
+    @Override
+    public List<SubfieldImpl> getSubfields(String regexp) {
         LinkedList list = new LinkedList();
         
         Iterator iter = iterator();
@@ -131,22 +139,26 @@ public class DatafieldImpl extends FieldImpl implements Datafield {
             }
         }
         
-        return list;
+        return java.util.Collections.unmodifiableList(list);
     }
     
-    public Iterator iterator(String regexp) {
+    @Override
+    public Iterator<SubfieldImpl> iterator(String regexp) {
         return getSubfields(regexp).iterator();
     }
     
-    public ListIterator listIterator(String regexp) {
-        return getSubfields().listIterator();
+    @Override
+    public ListIterator<SubfieldImpl> listIterator(String regexp) {
+        return getSubfields(regexp).listIterator();
     }
     
     
+    @Override
     public Subfield createSubfield(char code, String data) {
         return new SubfieldImpl(code, data);
     }
     
+    @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
         
