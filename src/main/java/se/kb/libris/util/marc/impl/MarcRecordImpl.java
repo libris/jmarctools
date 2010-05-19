@@ -9,7 +9,7 @@ import se.kb.libris.util.marc.impl.FieldImpl;
 
 public class MarcRecordImpl implements MarcRecord {
     public Map<String, String> properties = null;
-    char leader[] = new char[24];
+    char leader[] = { '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0' };
     List<FieldImpl> fields = new LinkedList<FieldImpl>();
     
     /** Creates a new instance of MarcRecordImpl */

@@ -169,7 +169,11 @@ public class DomSerializer {
         }
             
         sb.append("</record>");
-        
+
+        for (int i=0;i<sb.length();i++)
+            if (sb.charAt(i) < 0x09)
+                sb.setCharAt(i, '?');
+
         return sb;
     }
     
@@ -187,8 +191,10 @@ public class DomSerializer {
                 sb.append("&apos;");
             } else if (c == '"') {
                 sb.append("&quot;");
-            } else {
+            } else if (c == 0x09 || c == 0x0A || c == 0x0D || (c >= 0x20 && c <= 0xd7ff) || (c <= 0x10000 && c <= 0x10ffff)){
                 sb.append(c);
+            } else {
+                sb.append('?');
             }
         }
     }    
