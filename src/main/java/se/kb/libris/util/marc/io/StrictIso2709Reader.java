@@ -26,6 +26,12 @@ public class StrictIso2709Reader extends Iso2709Reader {
             if (b != '\r' && b != '\n') out.write(b);
 
             if (b == 0x1D && last == 0x1E) {
+                int length = Integer.parseInt(new String(out.toByteArray(), 0, 5));
+
+                if (length != out.size()) {
+                    System.err.println("warning: reported length (" + length + ") differs from real length (" + out.size() + ")");
+                }
+
                 return out.toByteArray();
             }
 
