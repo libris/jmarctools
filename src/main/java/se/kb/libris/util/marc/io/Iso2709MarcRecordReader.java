@@ -67,6 +67,18 @@ public class Iso2709MarcRecordReader implements MarcRecordReader {
         this.trustDirectory = trustDirectory;
     }
 
+    public Iso2709MarcRecordReader(File f, boolean trustLength, boolean trustDirectory, boolean discardBroken, String encoding) throws IOException {
+        isoReader = trustLength? new Iso2709Reader(f):new StrictIso2709Reader(f, discardBroken);
+        this.encoding = encoding;
+        this.trustDirectory = trustDirectory;
+    }
+
+    public Iso2709MarcRecordReader(InputStream in, boolean trustLength, boolean trustDirectory, boolean discardBroken, String encoding) {
+        isoReader = trustLength? new Iso2709Reader(in):new StrictIso2709Reader(in, discardBroken);
+        this.encoding = encoding;
+        this.trustDirectory = trustDirectory;
+    }
+
     @Override
     public MarcRecord readRecord() throws IOException {
         byte rec[] = isoReader.readIso2709();
@@ -82,6 +94,7 @@ public class Iso2709MarcRecordReader implements MarcRecordReader {
         }
     }
 
+    @Override
     public void close() {
         isoReader.close();
     }

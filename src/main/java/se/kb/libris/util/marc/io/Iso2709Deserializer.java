@@ -66,10 +66,10 @@ public class Iso2709Deserializer {
             if (trust_directory) {
                 for (int i=0;i<nFields;i++) {
                     int pos1 = offset + baseAddr + Integer.parseInt(new String(record, offset + 24 + i*12 + 3 + 4, 5, "ASCII"));
-                    int pos2 = pos1 + Integer.parseInt(new String(record, offset + 24 + i*12 + 3, 4, "ASCII"));
+                    int pos2 = pos1 + Integer.parseInt(new String(record, offset + 24 + i*12 + 3, 4, "ASCII")) - 1;
                     String tag = new String(record, offset + 24 + i*12, 3, "ASCII");
 
-                    if (Pattern.matches("00\\w", tag)) {
+                    if ((pos2-pos1) < 3 || record[pos1 + 2] != MarcRecord.SUBFIELD_MARK) {
                         mr.addField(new ControlfieldImpl(tag, record, pos1, pos2-1, encoding));
                     } else {
                         mr.addField(new DatafieldImpl(tag, record, pos1, pos2-1, encoding));

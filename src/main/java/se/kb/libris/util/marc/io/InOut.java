@@ -20,6 +20,7 @@ abstract public class InOut {
             System.out.println("    -recordNamespace=<name>");
             System.out.println("    -trustLength=[true|false]");
             System.out.println("    -trustDirectory=[true|false]");
+            System.out.println("    -discardBroken=[true|false]");
             System.out.println();
             
             return;
@@ -28,7 +29,7 @@ abstract public class InOut {
         InputStream in = System.in;
         OutputStream out = System.out;
         String inEncoding = null, outEncoding = "UTF-8", inType = "ISO2709", outType = "ISO2709", recordTag = "/collection/record", namespace = null;
-        boolean trust_length = false, trust_directory = false;
+        boolean trust_length = false, trust_directory = false, discard_broken = false;
         MarcRecordReader reader = null;
         MarcRecordWriter writer = null;
         
@@ -55,14 +56,16 @@ abstract public class InOut {
                 trust_length = Boolean.valueOf(value);
             } else if (name.equals("trustDirectory")) {
                 trust_directory = Boolean.valueOf(value);
+            } else if (name.equals("discardBroken")) {
+                discard_broken = Boolean.valueOf(value);
             }
         }
         
         if (inType.equals("ISO2709")) {
             if (inEncoding == null) {
-                reader = new Iso2709MarcRecordReader(in, trust_length, trust_directory);
+                reader = new Iso2709MarcRecordReader(in, trust_length, trust_directory, discard_broken, System.getProperty("file.encoding"));
             } else {
-                reader = new Iso2709MarcRecordReader(in, trust_length, trust_directory, inEncoding);
+                reader = new Iso2709MarcRecordReader(in, trust_length, trust_directory, discard_broken, inEncoding);
             }
         } else if (inType.equals("XML")) {
             if (namespace == null) {
