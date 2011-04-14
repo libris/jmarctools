@@ -51,6 +51,7 @@ public interface MarcRecord {
     public Controlfield createControlfield(String tag, String data);
     public Datafield createDatafield(String tag);
     public void setProperty(String property, String value);
+    public Map<String, String> getProperties();
     public String getProperty(String property);
     public String getProperty(String property, String def);
     public List<? extends Datafield> grep(String str);

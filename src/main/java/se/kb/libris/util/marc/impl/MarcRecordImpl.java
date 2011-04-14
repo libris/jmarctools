@@ -278,6 +278,11 @@ public class MarcRecordImpl implements MarcRecord {
         else if (properties.containsKey(property)) return properties.get(property);
         else return def;
     }
+
+    @Override
+    public Map<String, String> getProperties() {
+        return properties;
+    }
     
     @Override
     public List<DatafieldImpl> grep(String str) {

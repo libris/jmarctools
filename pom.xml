@@ -9,7 +9,7 @@
   <groupId>se.kb.libris</groupId>
   <artifactId>marc</artifactId>
   <packaging>jar</packaging>
-  <version>1.2.2</version>
+  <version>1.2.3</version>
   <name>LIBRIS MARC Tools</name>
   <scm>
     <connection>scm:svn:http://dev.libris.kb.se/svn/marc/trunk</connection>
