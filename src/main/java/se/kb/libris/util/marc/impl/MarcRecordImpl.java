@@ -8,9 +8,9 @@ import se.kb.libris.util.marc.*;
 import se.kb.libris.util.marc.impl.FieldImpl;
 
 public class MarcRecordImpl implements MarcRecord {
-    public Map<String, String> properties = null;
+    public SortedMap<String, String> properties = new TreeMap<String, String>();
     char leader[] = { '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0' };
-    List<FieldImpl> fields = new LinkedList<FieldImpl>();
+    List<Field> fields = new LinkedList<Field>();
     
     /** Creates a new instance of MarcRecordImpl */
     public MarcRecordImpl() {
@@ -45,15 +45,15 @@ public class MarcRecordImpl implements MarcRecord {
     }
     
     @Override
-    public List<FieldImpl> getFields() {
+    public List<Field> getFields() {
         return fields;
     }
 
     @Override
-    public List<ControlfieldImpl> getControlfields() {
-        List<ControlfieldImpl> f = new LinkedList<ControlfieldImpl>();
+    public List<Controlfield> getControlfields() {
+        List<Controlfield> f = new LinkedList<Controlfield>();
 
-        for (FieldImpl field: fields)
+        for (Field field: fields)
             if (f instanceof ControlfieldImpl)
                 f.add((ControlfieldImpl)field);
 
@@ -61,23 +61,23 @@ public class MarcRecordImpl implements MarcRecord {
     }
 
     @Override
-    public List<DatafieldImpl> getDatafields() {
-        List<DatafieldImpl> f = new LinkedList<DatafieldImpl>();
+    public List<Datafield> getDatafields() {
+        List<Datafield> f = new LinkedList<Datafield>();
 
-        for (FieldImpl field: fields)
-            if (f instanceof DatafieldImpl)
-                f.add((DatafieldImpl)field);
+        for (Field field: fields)
+            if (f instanceof Datafield)
+                f.add((Datafield)field);
 
         return f;
     }
 
     @Override
-    public Iterator<FieldImpl> iterator() {
+    public Iterator<Field> iterator() {
         return fields.iterator();
     }
     
     @Override
-    public ListIterator<FieldImpl> listIterator() {
+    public ListIterator<Field> listIterator() {
         return fields.listIterator();
     }
     
@@ -118,7 +118,7 @@ public class MarcRecordImpl implements MarcRecord {
         
         sb.append("leader: " + getLeader() + "\n");
         
-        Iterator<FieldImpl> iter = iterator();
+        Iterator<Field> iter = iterator();
         while (iter.hasNext()) {
             Field f = (Field)iter.next();
             
@@ -193,7 +193,7 @@ public class MarcRecordImpl implements MarcRecord {
         return list;
     }
     
-    public List<FieldImpl> getFields(Pattern pattern) {
+    public List<Field> getFields(Pattern pattern) {
         LinkedList list = new LinkedList();
 
         Iterator iter = iterator();
@@ -209,8 +209,8 @@ public class MarcRecordImpl implements MarcRecord {
     }
 
     @Override
-    public List<ControlfieldImpl> getControlfields(String regexp) {
-        LinkedList<ControlfieldImpl> list = new LinkedList();
+    public List<Controlfield> getControlfields(String regexp) {
+        LinkedList<Controlfield> list = new LinkedList();
 
         Iterator iter = iterator(regexp);
         while (iter.hasNext()) {
@@ -225,8 +225,8 @@ public class MarcRecordImpl implements MarcRecord {
     }
 
     @Override
-    public List<DatafieldImpl> getDatafields(String regexp) {
-        LinkedList<DatafieldImpl> list = new LinkedList();
+    public List<Datafield> getDatafields(String regexp) {
+        LinkedList<Datafield> list = new LinkedList();
 
         Iterator iter = iterator(regexp);
         while (iter.hasNext()) {
@@ -241,51 +241,47 @@ public class MarcRecordImpl implements MarcRecord {
     }
 
     @Override
-    public Iterator<FieldImpl> iterator(String regexp) {
+    public Iterator<Field> iterator(String regexp) {
         return getFields(regexp).iterator();
     }
     
     @Override
-    public Iterator<FieldImpl> iterator(Pattern pattern) {
+    public Iterator<Field> iterator(Pattern pattern) {
         return getFields(pattern).iterator();
     }
     
     @Override
-    public ListIterator<FieldImpl> listIterator(String regexp) {
+    public ListIterator<Field> listIterator(String regexp) {
         return getFields(regexp).listIterator();
     }
     
-    public ListIterator<FieldImpl> listIterator(Pattern pattern) {
+    public ListIterator<Field> listIterator(Pattern pattern) {
         return getFields(pattern).listIterator();
     }
     
     @Override
     public void setProperty(String property, String value) {
-        if (properties == null) properties = new HashMap<String, String>();
-        
         properties.put(property, value);
     }
     
     @Override
     public String getProperty(String property) {
-        if (properties == null) return null;
-        else return properties.get(property);
+        return properties.get(property);
     }
     
     @Override
     public String getProperty(String property, String def) {
-        if (properties == null) return def;
-        else if (properties.containsKey(property)) return properties.get(property);
+        if (properties.containsKey(property)) return properties.get(property);
         else return def;
     }
 
     @Override
-    public Map<String, String> getProperties() {
+    public SortedMap<String, String> getProperties() {
         return properties;
     }
     
     @Override
-    public List<DatafieldImpl> grep(String str) {
+    public List<Datafield> grep(String str) {
         // example 100a,b,c,w=g;h
         Map<String, Set<String>> filter = new HashMap<String, Set<String>>();
         String tag = str.substring(0,3), subfields[]=str.substring(3).split(",");
@@ -309,8 +305,8 @@ public class MarcRecordImpl implements MarcRecord {
             set.add(tag + subfield.charAt(0));
         }
 
-        List<DatafieldImpl> ret = new LinkedList<DatafieldImpl>();
-        Iterator<FieldImpl> fiter = iterator(tag);
+        List<Datafield> ret = new LinkedList<Datafield>();
+        Iterator<Field> fiter = iterator(tag);
 
         while (fiter.hasNext()) {
             DatafieldImpl df = (DatafieldImpl)fiter.next();
