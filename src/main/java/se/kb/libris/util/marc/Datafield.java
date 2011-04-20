@@ -18,10 +18,10 @@ public interface Datafield extends Field{
     public void addSubfield(Subfield f);
     public Datafield addSubfield(char code, String data);
     public Subfield createSubfield(char code, String data);
-    public List<? extends Subfield> getSubfields();
-    public List<? extends Subfield> getSubfields(String regexp);
-    public Iterator<? extends Subfield> iterator();
-    public Iterator<? extends Subfield> iterator(String regexp);
-    public ListIterator<? extends Subfield> listIterator();
-    public ListIterator<? extends Subfield> listIterator(String regexp);
+    public List<Subfield> getSubfields();
+    public List<Subfield> getSubfields(String regexp);
+    public Iterator<Subfield> iterator();
+    public Iterator<Subfield> iterator(String regexp);
+    public ListIterator<Subfield> listIterator();
+    public ListIterator<Subfield> listIterator(String regexp);
 }

@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
  * @author  Martin Malmsten
  */
 public class DatafieldImpl extends FieldImpl implements Datafield {
-    List subfields = new LinkedList();
+    List subfields = new LinkedList<Subfield>();
     char indicators[] = { ' ', ' ' };
     
     /** Creates a new instance of DatafieldImpl */
@@ -112,22 +112,22 @@ public class DatafieldImpl extends FieldImpl implements Datafield {
     }
     
     @Override
-    public List<SubfieldImpl> getSubfields() {
+    public List<Subfield> getSubfields() {
         return subfields;
     }
 
     @Override
-    public Iterator<SubfieldImpl> iterator() {
+    public Iterator<Subfield> iterator() {
         return subfields.iterator();
     }
 
     @Override
-    public ListIterator<SubfieldImpl> listIterator() {
+    public ListIterator<Subfield> listIterator() {
         return subfields.listIterator();
     }
     
     @Override
-    public List<SubfieldImpl> getSubfields(String regexp) {
+    public List<Subfield> getSubfields(String regexp) {
         LinkedList list = new LinkedList();
         
         Iterator iter = iterator();
@@ -143,12 +143,12 @@ public class DatafieldImpl extends FieldImpl implements Datafield {
     }
     
     @Override
-    public Iterator<SubfieldImpl> iterator(String regexp) {
+    public Iterator<Subfield> iterator(String regexp) {
         return getSubfields(regexp).iterator();
     }
     
     @Override
-    public ListIterator<SubfieldImpl> listIterator(String regexp) {
+    public ListIterator<Subfield> listIterator(String regexp) {
         return getSubfields(regexp).listIterator();
     }
     
