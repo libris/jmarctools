@@ -271,7 +271,7 @@ public class MarcRecordImpl implements MarcRecord {
     
     @Override
     public String getProperty(String property, String def) {
-        if (properties.containsKey(property)) return properties.get(property);
+        if (properties.get(property) != null) return properties.get(property);
         else return def;
     }
 
