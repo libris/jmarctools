@@ -55,4 +55,6 @@ public interface MarcRecord {
     public String getProperty(String property);
     public String getProperty(String property, String def);
     public List<? extends Datafield> grep(String str);
+    public byte[] getOriginalData();
+    public void setOriginalData(byte data[]);
 }

@@ -11,6 +11,7 @@ public class MarcRecordImpl implements MarcRecord {
     public SortedMap<String, String> properties = new TreeMap<String, String>();
     char leader[] = { '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0' };
     List<Field> fields = new LinkedList<Field>();
+    byte data[] = null;
     
     /** Creates a new instance of MarcRecordImpl */
     public MarcRecordImpl() {
@@ -327,5 +328,15 @@ public class MarcRecordImpl implements MarcRecord {
         }
 
         return ret;
+    }
+
+    @Override
+    public byte[] getOriginalData() {
+        return data;
+    }
+
+    @Override
+    public void setOriginalData(byte[] _data) {
+        data = _data;
     }
 }
