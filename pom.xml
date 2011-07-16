@@ -1,21 +1,35 @@
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <parent>
-      <groupId>se.kb.libris</groupId>
-      <artifactId>super-pom</artifactId>
-      <version>1.0</version>
-  </parent>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>se.kb.libris</groupId>
-  <artifactId>marc</artifactId>
-  <packaging>jar</packaging>
-  <version>1.2.6</version>
-  <name>LIBRIS MARC Tools</name>
-  <scm>
-    <connection>scm:svn:http://dev.libris.kb.se/svn/marc/trunk</connection>
-    <developerConnection>scm:svn:http://dev.libris.kb.se/svn/marc/trunk</developerConnection>
-    <tag>HEAD</tag>
-    <url>http://dev.libris.kb.se/svn/marc</url>
-  </scm>
+    <parent>
+        <groupId>se.kb.libris</groupId>
+        <artifactId>super-pom</artifactId>
+        <version>1.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>se.kb.libris</groupId>
+    <artifactId>marc</artifactId>
+    <packaging>jar</packaging>
+    <version>1.2.6</version>
+    <name>LIBRIS MARC Tools</name>
+    <developers>
+        <developer>
+            <id>marma</id>
+            <name>Martin Malmsten</name>
+            <email>martin.malmsten@kb.se</email>
+            <organization>LIBRIS</organization>
+            <organizationUrl>http://libris.kb.se/</organizationUrl>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:svn:http://dev.libris.kb.se/svn/marc/trunk</connection>
+        <developerConnection>scm:svn:http://dev.libris.kb.se/svn/marc/trunk</developerConnection>
+        <tag>HEAD</tag>
+        <url>http://dev.libris.kb.se/svn/marc</url>
+    </scm>
 </project>
 
