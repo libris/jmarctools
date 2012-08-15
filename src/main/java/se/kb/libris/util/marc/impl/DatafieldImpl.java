@@ -106,7 +106,8 @@ public class DatafieldImpl extends FieldImpl implements Datafield {
 
     @Override
     public Datafield setIndicator(int idx, char c) {
-        indicators[idx] = c;
+	if (c >= 0x20 && c <= 0xff)
+	        indicators[idx] = c;
         
         return this;
     }

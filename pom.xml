@@ -10,7 +10,7 @@
     <groupId>se.kb.libris</groupId>
     <artifactId>marc</artifactId>
     <packaging>jar</packaging>
-    <version>1.2.6</version>
+    <version>1.2.7</version>
     <name>LIBRIS MARC Tools</name>
     <developers>
         <developer>
