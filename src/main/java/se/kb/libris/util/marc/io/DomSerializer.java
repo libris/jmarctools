@@ -171,16 +171,16 @@ public class DomSerializer {
         sb.append("</record>");
 
         for (int i=0;i<sb.length();i++)
-            if (sb.charAt(i) < 0x09)
+            if (sb.charAt(i) < 0x09 || (sb.charAt(i) > 0x0D && sb.charAt(i) < 0x1F))
                 sb.setCharAt(i, '?');
 
         return sb;
     }
-    
+
     private static void printXml(StringBuffer sb, CharSequence data) {
         for (int i=0;i<data.length();i++) {
             char c = data.charAt(i);
-            
+
             if (c == '&') {
                 sb.append("&amp;");
             } else if (c == '<') {
