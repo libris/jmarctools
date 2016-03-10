@@ -1,17 +1,19 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <parent>
-        <groupId>se.kb.libris</groupId>
-        <artifactId>super-pom</artifactId>
-        <version>1.1</version>
-    </parent>
     <modelVersion>4.0.0</modelVersion>
     <groupId>se.kb.libris</groupId>
     <artifactId>marc</artifactId>
     <packaging>jar</packaging>
-    <version>1.2.8</version>
+    <version>1.2.9</version>
     <name>LIBRIS MARC Tools</name>
+    <organization>
+        <name>LIBRIS</name>
+        <url>http://libris.kb.se/</url>
+    </organization>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <developers>
         <developer>
             <id>marma</id>
@@ -25,11 +27,36 @@
             </roles>
         </developer>
     </developers>
+    <issueManagement>
+    		<url>https://github.com/libris/jmarctools/issues</url>
+        <system>GitHub Issues</system>
+    </issueManagement>
+    <reporting>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>findbugs-maven-plugin</artifactId>
+            <version>3.0.3</version>
+          </plugin>
+        </plugins>
+    </reporting>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.0.2</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
     <scm>
-        <connection>scm:svn:http://dev.libris.kb.se/svn/marc/trunk</connection>
-        <developerConnection>scm:svn:http://dev.libris.kb.se/svn/marc/trunk</developerConnection>
-        <tag>HEAD</tag>
-        <url>http://dev.libris.kb.se/svn/marc</url>
+        <url>https://github.com/libris/jmarctools</url>
+        <connection>scm:git:git://github.com/libris/jmarctools.git</connection>
+        <!--developerConnection>scm:git</developerConnection-->
     </scm>
 </project>
-
