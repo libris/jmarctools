@@ -2,235 +2,157 @@ package se.kb.libris.util.marc.io;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.xml.parsers.*;
-import org.omg.IOP.CodecFactoryPackage.UnknownEncoding;
-import org.xml.sax.SAXException;
+import javax.xml.stream.*;
+import javax.xml.stream.events.*;
 import se.kb.libris.util.marc.*;
 
 public class MarcXmlRecordReader implements MarcRecordReader {
-    LinkedList records = null;
-    SAXParser parser = null;
-    InputStream in = null;
-    String namespace = null, start = "/record";
+    private static String DEFAULT_PATH = "/collection/record";
+    //private static String DEFAULT_NAMESPACE = "http://www.loc.gov/MARC21/slim";
+    private static String DEFAULT_NAMESPACE = null;
+    
+    String namespace = null, path = null;
     MarcRecordBuilder recordBuilder = MarcRecordBuilderFactory.newBuilder();
-    boolean available = false;
-    public static boolean debug = false;
-    Thread readerThread = null;
-    Exception exception = null;
+    boolean closed = false, done = false;
+
+    XMLEventReader eventReader = null;
+    String state = "";
+    IOException exception = null;
     
-    public MarcXmlRecordReader(InputStream _in) throws javax.xml.parsers.ParserConfigurationException, org.xml.sax.SAXException {
-        parser = SAXParserFactory.newInstance().newSAXParser();
-        in = _in;
-        init();
-    }
-    
-    public MarcXmlRecordReader(InputStream _in, String _start) throws javax.xml.parsers.ParserConfigurationException, org.xml.sax.SAXException {
-        parser = SAXParserFactory.newInstance().newSAXParser();
-        in = _in;
-        start = _start;
-        init();
-    }
-    
-    public MarcXmlRecordReader(InputStream _in, String _start, String _namespace) throws javax.xml.parsers.ParserConfigurationException, org.xml.sax.SAXException {
-        parser = SAXParserFactory.newInstance().newSAXParser();
-        in = _in;
-        start = _start;
-        namespace = _namespace;
-        init();
+    public MarcXmlRecordReader(InputStream in) throws IOException {
+        this(in, DEFAULT_PATH, DEFAULT_NAMESPACE);
     }
 
-    public static MarcRecord fromXml(String str) throws IOException {
-        MarcRecord mr = null;
+    public MarcXmlRecordReader(InputStream in, String path) throws IOException {
+        this(in, path, DEFAULT_NAMESPACE);
+    }
 
+    public MarcXmlRecordReader(InputStream in, String path, String namespace) throws IOException {
+        this.path = path;
+        this.namespace = namespace;
+        
         try {
-            byte bytes[] = str.getBytes("UTF-8");
-            ByteArrayInputStream bin = new ByteArrayInputStream(bytes);
-            MarcXmlRecordReader reader = new MarcXmlRecordReader(bin);
-            mr = reader.readRecord();
-            reader.close();
-
-            return mr;
-        } catch (ParserConfigurationException ex) {
-            Logger.getLogger(MarcXmlRecordReader.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SAXException ex) {
-            Logger.getLogger(MarcXmlRecordReader.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(MarcXmlRecordReader.class.getName()).log(Level.SEVERE, null, ex);
+            XMLInputFactory factory = XMLInputFactory.newInstance();
+            eventReader = factory.createXMLEventReader(in);
+        } catch (XMLStreamException e) {
+            exception = new IOException(e);
+            throw exception;
         }
-
-        return mr;
     }
 
-    public void init() {
-        records = new LinkedList();
-        final MarcXmlRecordReader reader = this;
+    @Override
+    public synchronized MarcRecord readRecord() throws IOException {
+        if (closed) throw new IOException("Reader closed prematurely");
+        if (exception != null) throw exception;
+        if (done) return null;
 
-        readerThread = (new Thread() {
-            public void run() {
-                try {
-                    if (debug) System.err.println(this.toString() + " starting");
-                    parser.parse(in, new MarcXmlHandler(records, reader, start, namespace));
-                    if (debug) System.err.println(this.toString() + " done");
-                } catch (Exception e) {
-                    if (debug) System.err.println(e.getMessage());
-                    if (debug) e.printStackTrace(System.err);
-                    exception = e;
-                } finally {
-                    reader.addRecord(null);
-                }
-            } 
-        });
-        
-        readerThread.start();
-    }
-    
-    public synchronized MarcRecord readRecord() throws IOException {        
-        MarcRecord ret = null;
-        
-        while (available == false) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-            }
-        }
-        
-        if (exception != null) {
-            throw new IOException(exception.getMessage());
-        }
-        
-        available = false;
-        
-        if (!records.isEmpty()) {
-            ret = (MarcRecord)records.removeFirst();
-        }
-        
-        notifyAll();
-
-        if (ret == null) {
-            if (debug) System.err.println(Thread.currentThread().toString() + " returning null");
-        } else {
-            if (debug) System.err.println(Thread.currentThread().toString() + " returning record");
-        }
-
-        return ret;
-    }
-    
-    public synchronized void addRecord(MarcRecord record) {
-        if (record == null) {
-            if (debug) System.err.println(Thread.currentThread().toString() + " adding null");
-        } else {
-            if (debug) System.err.println(Thread.currentThread().toString() + " adding record");
-        }
-        
-        while (available == true) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-            }
-        }
-        
-        if (record != null) {
-            records.add(record);
-        }
-        
-        available = true;
-        notifyAll();
-    }
-    
-    public void close() {
-        try {
-            in.close();
-        } catch (IOException e) {
-        }
-        
-        readerThread.interrupt();
-    }
-    
-    protected class MarcXmlHandler extends org.xml.sax.helpers.DefaultHandler {
-        MarcXmlRecordReader reader = null;
-        LinkedList list = null;
-        String state = "", start = null, namespace = null;;
-        StringBuffer text = new StringBuffer();
+        StringBuilder text = new StringBuilder();
         MarcRecord currentRecord = null;
         Controlfield currentControlField = null;
         Datafield currentDataField = null;
         Subfield currentSubField = null;
+        boolean skip = true;
         
-        public MarcXmlHandler(LinkedList l, MarcXmlRecordReader _reader, String _start, String _namespace) {
-            reader = _reader;
-            list = l;
-            namespace = _namespace;
-            start = _start;
-            
-            if (namespace == null) {
-                namespace = "";
-            } else {
-                namespace += ":";
-            }
-        }
-        
-        public void endElement(String uri, String localName, String qName) throws org.xml.sax.SAXException {
-            if (debug) System.err.println("end uri: " + uri + ", localName: " + localName + ", qName: " + qName + ", state " + state + ", start " + start);
-            if (state.startsWith(start)) {
-                if (qName.equals(namespace + "record")) {
-                    if (debug) System.err.println(Thread.currentThread().toString() + " adding record");
-                    reader.addRecord(currentRecord);                    
-                } else if (qName.equals(namespace + "leader")) {
-                    currentRecord.setLeader(text.toString());
-                } else if (qName.equals(namespace + "controlfield")) {
-                    currentControlField.setData(text.toString());
-                    currentRecord.addField(currentControlField);
-                } else if (qName.equals(namespace + "datafield")) {
-                    currentRecord.addField(currentDataField);
-                } else if (qName.equals(namespace + "subfield")) {
-                    currentSubField.setData(text.toString().replace('\r', ' ').replace('\n', ' '));
-                    currentDataField.addSubfield(currentSubField);
+        try {
+            while (eventReader.hasNext()) {
+                XMLEvent event = eventReader.nextEvent();
+
+                if (event.getEventType() == XMLStreamConstants.START_ELEMENT) {
+                    StartElement startElement = event.asStartElement();
+                    String localName = startElement.getName().getLocalPart();
+                    boolean ns = namespace == null || startElement.getName().getNamespaceURI().equals(namespace);
+                    state += "/" + localName;
+                    
+                    //System.err.println(startElement.getName().getNamespaceURI() + " - " + startElement.getName().getPrefix() + " - " + startElement.getName().getLocalPart());
+                    
+                    if (state.startsWith(path) && ns) {
+                        // store attributes without respecitve prefix, but with correct namespace
+                        Map<String, String> attributes = new HashMap<String, String>();
+                        Iterator i = startElement.getAttributes();
+                        while (i.hasNext()) {
+                            Attribute a = (Attribute)i.next();
+
+                            if (namespace == null || a.getName().getNamespaceURI().equals("") || namespace.equals(a.getName().getNamespaceURI())) {
+                                //System.out.println(a.getName().getNamespaceURI() + " - " + a.getName().getPrefix() + " - " + a.getName().getLocalPart() + " = " + a.getValue());
+                                attributes.put(a.getName().getLocalPart(), a.getValue());
+                            }
+                        }
+                                                
+                        if (localName.equals("record")) {
+                            currentRecord = recordBuilder.createMarcRecord();
+                        } else if (localName.equals("controlfield")) {
+                            currentControlField = recordBuilder.createControlfield(attributes.get("tag"), "");
+                        } else if (localName.equals("datafield")) {
+                            String ind1 = attributes.get("ind1"), ind2 = attributes.get("ind2");
+                            currentDataField = recordBuilder.createDatafield(attributes.get("tag"));
+
+                            if (!ind1.equals("")) {
+                                currentDataField.setIndicator(0, ind1.charAt(0));
+                            }
+
+                            if (!ind2.equals("")) {
+                                currentDataField.setIndicator(1, ind2.charAt(0));
+                            }
+                        } else if (localName.equals("subfield")) {
+                            String code = attributes.get("code");
+                            currentSubField = recordBuilder.createSubfield(code.charAt(0), "");
+                        }
+                        
+                        text.setLength(0);
+                    }
+                } else if (event.getEventType() == XMLStreamConstants.END_ELEMENT) {
+                    EndElement endElement = event.asEndElement();
+                    String localName = endElement.getName().getLocalPart();
+                    boolean ns = namespace == null || endElement.getName().getNamespaceURI().equals(namespace);
+
+                    if (state.startsWith(path) && ns) {
+                        if (localName.equals("record")) {
+                            return currentRecord;
+                        } else if (localName.equals("leader")) {
+                            currentRecord.setLeader(text.toString());
+                        } else if (localName.equals("controlfield")) {
+                            currentControlField.setData(text.toString());
+                            currentRecord.addField(currentControlField);
+                        } else if (localName.equals("datafield")) {
+                            currentRecord.addField(currentDataField);
+                        } else if (localName.equals("subfield")) {
+                            currentSubField.setData(text.toString().replace('\r', ' ').replace('\n', ' '));
+                            currentDataField.addSubfield(currentSubField);
+                        }
+                    }
+                    
+                    state = state.substring(0, state.lastIndexOf('/'));
+                } else if (event.getEventType() == XMLStreamConstants.CHARACTERS) {
+                    if (state.startsWith(path)) {
+                        text.append(event.asCharacters());
+                    }
                 }
             }
             
-            text.setLength(0);
-            
-            state = state.substring(0, state.lastIndexOf('/'));
+            done = true;
+        } catch (Exception e) {
+            exception = new IOException(e);
+            throw exception;
         }
         
-        public void startElement(String uri, String localName, String qName, org.xml.sax.Attributes attributes) throws org.xml.sax.SAXException {
-            if (debug) System.err.println("uri: " + uri + ", localName: " + localName + ", qName: " + qName);
-            
-            state += "/" + qName;
-            
-            if (debug) System.err.println("state: " + state + ", start: " + start);
-            
-            if (state.startsWith(start)) {
-                if (qName.equals(namespace + "record")) {
-                    currentRecord = recordBuilder.createMarcRecord();
-                } else if (qName.equals(namespace + "controlfield")) {
-                    currentControlField = recordBuilder.createControlfield(attributes.getValue("tag"), "");
-                } else if (qName.equals(namespace + "datafield")) {
-                    String ind1 = attributes.getValue("ind1"), ind2 = attributes.getValue("ind2");
-                    currentDataField = recordBuilder.createDatafield(attributes.getValue("tag"));
-                    
-                    if (!ind1.equals("")) {
-                        currentDataField.setIndicator(0, ind1.charAt(0));
-                    }
-                    
-                    if (!ind2.equals("")) {
-                        currentDataField.setIndicator(1, ind2.charAt(0));
-                    }
-                } else if (qName.equals(namespace + "subfield")) {
-                    String code = attributes.getValue("code");
-                    currentSubField = recordBuilder.createSubfield(code.charAt(0), "");
-                }
-                
-                text.setLength(0);
-            }
-        }
-        
-        public void characters(char[] values, int start, int length) throws org.xml.sax.SAXException {
-            text.append(values, start, length);
+        return null;
+    }
+    
+    @Override
+    public void close() {
+        closed = true;
+        try { eventReader.close(); } catch (XMLStreamException ex) { }
+    }
+
+    public static MarcRecord fromXml(String str) throws IOException {
+        try {
+            byte bytes[] = str.getBytes("UTF-8");
+            ByteArrayInputStream bin = new ByteArrayInputStream(bytes);
+            MarcXmlRecordReader reader = new MarcXmlRecordReader(bin);
+
+            return reader.readRecord();
+        } catch (Exception e) {
+            throw new IOException(e);
         }
     }
 }

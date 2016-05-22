@@ -52,24 +52,24 @@ public class MarcRecordImpl implements MarcRecord {
 
     @Override
     public List<Controlfield> getControlfields() {
-        List<Controlfield> f = new LinkedList<Controlfield>();
+        List<Controlfield> list = new LinkedList<Controlfield>();
 
         for (Field field: fields)
-            if (f instanceof ControlfieldImpl)
-                f.add((ControlfieldImpl)field);
+            if (field instanceof Controlfield)
+                list.add((Controlfield)field);
 
-        return f;
+        return list;
     }
 
     @Override
     public List<Datafield> getDatafields() {
-        List<Datafield> f = new LinkedList<Datafield>();
+        List<Datafield> list = new LinkedList<Datafield>();
 
         for (Field field: fields)
-            if (f instanceof Datafield)
-                f.add((Datafield)field);
+            if (field instanceof Datafield)
+                list.add((Datafield)field);
 
-        return f;
+        return list;
     }
 
     @Override
