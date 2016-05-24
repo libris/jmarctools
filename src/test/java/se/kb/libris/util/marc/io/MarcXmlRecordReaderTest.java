@@ -42,6 +42,38 @@ public class MarcXmlRecordReaderTest {
     }
     
     @Test
+    public void parseMultipleTest() {
+        try {
+            MarcXmlRecordReader reader = new MarcXmlRecordReader(new MarcXmlTestInputStream(5));
+            
+            int n=0;
+            while (reader.readRecord() != null) n++;
+
+            if (n != 5) fail("Incorrect number of records read: 5 <> " + n);
+
+            reader.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
+    }
+    
+    @Test
+    public void prematureCloseTest() {
+
+        try {
+            MarcXmlRecordReader reader = new MarcXmlRecordReader(new MarcXmlTestInputStream(5));
+            
+            reader.readRecord();
+            reader.close();
+            reader.readRecord();
+
+            fail("Reading from closed stream did not result in an exception");
+        } catch (Exception e) {
+        }
+    }
+    
+    @Test
     public void parseTestPath() {
         String data = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + 
                       "<root>" +
