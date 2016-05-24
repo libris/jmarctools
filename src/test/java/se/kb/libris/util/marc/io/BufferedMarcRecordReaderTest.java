@@ -29,7 +29,7 @@ public class BufferedMarcRecordReaderTest {
     }
 
     @Test
-    public void testClose() {
+    public void testStreamClosed() {
         try {
             InputStream stream = new MarcXmlTestInputStream(10,5);
             BufferedMarcRecordReader reader = new BufferedMarcRecordReader(new MarcXmlRecordReader(stream));
@@ -44,9 +44,39 @@ public class BufferedMarcRecordReaderTest {
                 fail("Expected exception, got record");
             } catch (Exception e) {
             }
+            
+            Thread.sleep(50);
+            if (!reader.getReaderThreadState().name().equals("TERMINATED"))
+                fail("Reader thread not in TERMINATED state: " + reader.getReaderThreadState());
         } catch (Exception e) {
             fail(e.getMessage());
         }
     }
+    
+    @Test
+    public void testClosed() {
+        try {
+            InputStream stream = new MarcXmlTestInputStream(10);
+            BufferedMarcRecordReader reader = new BufferedMarcRecordReader(new MarcXmlRecordReader(stream), 5);
+            
+            // get five records
+            for (int i=0;i<5;i++) {
+                if (reader.readRecord() == null) fail("Expected record, got null");
+            }
 
+            reader.close();
+            
+            try {
+                if (reader.readRecord() == null) fail("Expected exception, got null");
+                fail("Expected exception, got record");
+            } catch (Exception e) {
+            }
+            
+            Thread.sleep(50);
+            if (!reader.getReaderThreadState().name().equals("TERMINATED"))
+                fail("Reader thread not in TERMINATED state: " + reader.getReaderThreadState());
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+    }
 }
