@@ -42,7 +42,7 @@ public class MarcXmlRecordReader implements MarcRecordReader {
 
     @Override
     public synchronized MarcRecord readRecord() throws IOException {
-        if (closed) throw new IOException("Reader closed prematurely");
+        if (closed && !done) throw new IOException("Reader closed prematurely");
         if (exception != null) throw exception;
         if (done) return null;
 
