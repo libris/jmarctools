@@ -148,7 +148,7 @@ public class MarcXmlRecordReader implements MarcRecordReader {
         try {
             byte bytes[] = str.getBytes("UTF-8");
             ByteArrayInputStream bin = new ByteArrayInputStream(bytes);
-            MarcXmlRecordReader reader = new MarcXmlRecordReader(bin);
+            MarcXmlRecordReader reader = new MarcXmlRecordReader(bin, "/record");
 
             return reader.readRecord();
         } catch (Exception e) {

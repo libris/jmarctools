@@ -97,25 +97,26 @@ public class MarcXmlRecordReaderTest {
     }
     
     @Test
-    public void parseTestDefaultNamespace() {
-        String data = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + 
-                      "<collection>\n" +
-                      record +
-                      "</collection>\n";
+    public void testFromXml() {
+        String data = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + record;
 
         try {
-            MarcXmlRecordReader reader = new MarcXmlRecordReader(new ByteArrayInputStream(data.getBytes("UTF-8")), "/collection/record");
-            MarcRecord mr = reader.readRecord();
+            MarcRecord mr = MarcXmlRecordReader.fromXml(data);
             
             if (mr == null) fail("No record retrieved");
-
-            reader = new MarcXmlRecordReader(new ByteArrayInputStream(data.getBytes("UTF-8")), "/collection/record", "http://www.loc.gov/MARC21/slim");
-            mr = reader.readRecord();
-
-            if (mr != null) fail("Record without namespace retrieved");
+            if (mr.getControlfields().size() != 1) fail("Controlfield count mismatch: 1 <> " + mr.getControlfields().size());
+            if (mr.getDatafields().size() != 2) fail("Datafield count mismatch: 2 <> " + mr.getDatafields().size());
+            if (mr.getDatafields("100").get(0).getSubfields().size() != 2) fail("Subfield count mismatch: 2 <> " + mr.getDatafields("100").get(0).getSubfields().size());
         } catch (Exception e) {
             e.printStackTrace();
             fail(e.getMessage());
         }
     }    
+
+    @Test
+    public void parseTestDefaultNamespace() {
+        String data = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" + 
+                      "<collection>\n" +
+                      record +
+                      "</collection>\n";
 }
