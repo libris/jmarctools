@@ -119,4 +119,5 @@ public class MarcXmlRecordReaderTest {
                       "<collection>\n" +
                       record +
                       "</collection>\n";
+	}
 }
