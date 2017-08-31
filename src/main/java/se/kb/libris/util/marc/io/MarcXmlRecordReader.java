@@ -124,7 +124,7 @@ public class MarcXmlRecordReader implements MarcRecordReader {
                     state = state.substring(0, state.lastIndexOf('/'));
                 } else if (event.getEventType() == XMLStreamConstants.CHARACTERS) {
                     if (state.startsWith(path)) {
-                        text.append(event.asCharacters());
+                        text.append(event.asCharacters().getData());
                     }
                 }
             }
