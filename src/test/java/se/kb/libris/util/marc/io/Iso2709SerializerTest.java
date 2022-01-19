@@ -77,7 +77,6 @@ public class Iso2709SerializerTest {
     public void testCutFieldOnMultibyteCharacter() throws UnsupportedEncodingException {
         for (String multiByteChar : new String[]{"木", "🐒", "௵", "🎃"}) {
             for (int i = 1 ; i < multiByteChar.getBytes("UTF-8").length - 1; i++) {
-                System.out.println(i);
                 MarcRecord r1 = new MarcRecordImpl();
                 int maxLen = maxDataLenBytes(1);
                 String s = bigString(maxLen - i) + multiByteChar;
