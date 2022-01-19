@@ -79,9 +79,9 @@ public class Iso2709SerializerTest {
             for (int i = 1 ; i < multiByteChar.getBytes("UTF-8").length - 1; i++) {
                 MarcRecord r1 = new MarcRecordImpl();
                 int maxLen = maxDataLenBytes(1);
-                String s = bigString(maxLen - i) + multiByteChar;
+                String data = bigString(maxLen - i) + multiByteChar;
     
-                r1.addField(new DatafieldImpl("502").addSubfield('a', s));
+                r1.addField(new DatafieldImpl("502").addSubfield('a', data));
     
                 MarcRecord r2 = Iso2709Deserializer.deserialize(Iso2709Serializer.serialize(r1, "UTF-8"), "UTF-8");
                 for(Datafield f : r2.getDatafields("502")) {
