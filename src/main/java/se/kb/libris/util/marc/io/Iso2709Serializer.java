@@ -7,6 +7,12 @@
 package se.kb.libris.util.marc.io;
 
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
 import java.util.*;
 import se.kb.libris.util.marc.*;
 import se.kb.libris.util.marc.impl.MarcRecordImpl;
@@ -233,7 +239,16 @@ public class Iso2709Serializer {
     }
 
     private static String bytes2str(byte[] b, String encoding) throws UnsupportedEncodingException {
-        return encoding != null ? new String(b, encoding) : new String(b);
+        try {
+            Charset charset = encoding != null ? Charset.forName(encoding) : Charset.defaultCharset();
+            CharsetDecoder decoder = charset.newDecoder();
+            decoder.onMalformedInput(CodingErrorAction.IGNORE);
+            decoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
+            CharBuffer c = decoder.decode(ByteBuffer.wrap(b));
+            return new String(c.array(), 0, c.length());
+        } catch (CharacterCodingException e) {
+            throw new UnsupportedEncodingException(e.getMessage());
+        }
     }
     
     private static Subfield findLongestSubfield(Datafield df) {

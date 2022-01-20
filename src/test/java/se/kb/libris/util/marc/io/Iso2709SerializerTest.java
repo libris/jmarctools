@@ -8,9 +8,11 @@ import se.kb.libris.util.marc.impl.DatafieldImpl;
 import se.kb.libris.util.marc.impl.MarcRecordImpl;
 import static org.junit.Assert.*;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 public class Iso2709SerializerTest {
+
     @Test
     public void testTooLongField() {
         MarcRecord r1 = new MarcRecordImpl();
@@ -25,7 +27,7 @@ public class Iso2709SerializerTest {
         for (Datafield f : fields) {
             List<Subfield> subFields = f.getSubfields();
             assertEquals(1, subFields.size());
-            int expectedDataBytes = 9999 - 5; // i1, i2, delimiter, subfield code, field terminator are each one byte
+            int expectedDataBytes = maxDataLenBytes(1);
             assertEquals(bigString(expectedDataBytes), subFields.get(0).getData());
         }
     }
@@ -54,8 +56,7 @@ public class Iso2709SerializerTest {
             for (Subfield s : subFields) {
                 actualDataBytes += s.getData().length();
             }
-            int expectedDataBytes = 9999 - 2 - NUM_FIELDS_SUB_FIELDS * 2 - 1; // i1, i2, delimiter, subfield code, field terminator are each one byte
-            assertEquals(expectedDataBytes, actualDataBytes);
+            assertEquals(maxDataLenBytes(NUM_FIELDS_SUB_FIELDS), actualDataBytes);
         }
     }
 
@@ -71,6 +72,26 @@ public class Iso2709SerializerTest {
 
         assertEquals(9, fields.size());
     }
+
+    @Test
+    public void testCutFieldOnMultibyteCharacter() throws UnsupportedEncodingException {
+        for (String multiByteChar : new String[]{"木", "🐒", "௵", "🎃"}) {
+            for (int i = 1 ; i < multiByteChar.getBytes("UTF-8").length - 1; i++) {
+                MarcRecord r1 = new MarcRecordImpl();
+                int maxLen = maxDataLenBytes(1);
+                String data = bigString(maxLen - i) + multiByteChar;
+    
+                r1.addField(new DatafieldImpl("502").addSubfield('a', data));
+    
+                MarcRecord r2 = Iso2709Deserializer.deserialize(Iso2709Serializer.serialize(r1, "UTF-8"), "UTF-8");
+                for(Datafield f : r2.getDatafields("502")) {
+                    for (Subfield sf : f.getSubfields("a")) {
+                        assertEquals(bigString(maxLen - i), sf.getData());
+                    }
+                }
+            }
+        }
+    }
     
     private static String bigString(int numChars) {
        StringBuilder s = new StringBuilder();
@@ -79,4 +100,11 @@ public class Iso2709SerializerTest {
        }
        return s.toString();
     } 
+    
+    private static int maxDataLenBytes(int numSubFields) {
+        // Max field size is 9999 bytes
+        // i1, i2, delimiter, subfield code, field terminator are each one byte
+        int overhead = 2 + 2 * numSubFields + 1;
+        return 9999 - overhead;
+    }
 }
