@@ -23,28 +23,29 @@ public class MarcXmlRecordWriter implements MarcRecordWriter {
     Transformer transformer = null;
     OutputStream out = null;
     String encoding = "utf-8";
+    boolean shouldWriteHeader = true;
 
     public MarcXmlRecordWriter(File f) throws IOException {
         this(new FileOutputStream(f));
     }
 
-    public MarcXmlRecordWriter(File f, boolean writeHeader) throws IOException {
-        this(new FileOutputStream(f), writeHeader);
+    public MarcXmlRecordWriter(File f, boolean shouldWriteHeader) throws IOException {
+        this(new FileOutputStream(f), shouldWriteHeader);
     }
 
     public MarcXmlRecordWriter(File f, String encoding) throws IOException {
         this(new FileOutputStream(f), encoding);
     }
 
-    public MarcXmlRecordWriter(File f, String encoding, boolean writeHeader) throws IOException {
-        this(new FileOutputStream(f), encoding, writeHeader);
+    public MarcXmlRecordWriter(File f, String encoding, boolean shouldWriteHeader) throws IOException {
+        this(new FileOutputStream(f), encoding, shouldWriteHeader);
     }
 
     public MarcXmlRecordWriter(OutputStream out) throws IOException {
         this(out, true);
     }
 
-    public MarcXmlRecordWriter(OutputStream out, boolean writeHeader) throws IOException {
+    public MarcXmlRecordWriter(OutputStream out, boolean shouldWriteHeader) throws IOException {
         try {
             doc = javax.xml.parsers.DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             transformer = javax.xml.transform.TransformerFactory.newInstance().newTransformer();
@@ -56,7 +57,8 @@ public class MarcXmlRecordWriter implements MarcRecordWriter {
         }
 
         this.out = out;
-        if (writeHeader) {
+        this.shouldWriteHeader = shouldWriteHeader;
+        if (shouldWriteHeader) {
             writeHeader();
         }
     }
@@ -65,7 +67,7 @@ public class MarcXmlRecordWriter implements MarcRecordWriter {
         this(out, encoding, true);
     }
 
-    public MarcXmlRecordWriter(OutputStream out, String encoding, boolean writeHeader) throws IOException {
+    public MarcXmlRecordWriter(OutputStream out, String encoding, boolean shouldWriteHeader) throws IOException {
         try {
             doc = javax.xml.parsers.DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
             transformer = javax.xml.transform.TransformerFactory.newInstance().newTransformer();
@@ -78,8 +80,8 @@ public class MarcXmlRecordWriter implements MarcRecordWriter {
         
         this.out = out;
         this.encoding = encoding;
-        
-        if (writeHeader) {
+        this.shouldWriteHeader = shouldWriteHeader;
+        if (shouldWriteHeader) {
             writeHeader();
         }
     }
@@ -117,6 +119,8 @@ public class MarcXmlRecordWriter implements MarcRecordWriter {
     }
 
     public void close() throws IOException {
-        out.write("</collection>".getBytes(encoding));
+        if (shouldWriteHeader) {
+            out.write("</collection>".getBytes(encoding));
+        }
     }
 }
