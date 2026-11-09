@@ -33,6 +33,10 @@ public class MarcXmlRecordReader implements MarcRecordReader {
         
         try {
             XMLInputFactory factory = XMLInputFactory.newInstance();
+            factory.setProperty(XMLInputFactory.SUPPORT_DTD, true);
+            factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+            factory.setProperty(XMLInputFactory.RESOLVER,
+                    (XMLResolver) (publicId, systemId, baseUri, ns) -> new ByteArrayInputStream(new byte[0]));
             eventReader = factory.createXMLEventReader(in);
         } catch (XMLStreamException e) {
             exception = new IOException(e);
